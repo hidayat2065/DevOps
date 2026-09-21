@@ -26,17 +26,17 @@ pipeline {
         }
 
         stage('Deploy Staging') {
-            steps {
-                echo '=== DEPLOY STAGING ==='
+    steps {
+        echo '=== DEPLOY STAGING ==='
 
-                sh '''
-                    rsync -av --delete \
-                    --exclude='Jenkinsfile' \
-                    school-website/ \
-                    /var/www/sekolah-staging/
-                '''
-            }
-        }
+        sh '''
+            rsync -rtv --delete \
+            --exclude='Jenkinsfile' \
+            school-website/ \
+            /var/www/sekolah-staging/
+        '''
+    }
+}
 
         stage('Health Check') {
             steps {
