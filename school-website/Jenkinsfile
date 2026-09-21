@@ -1,0 +1,69 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo '=== CHECKOUT SOURCE ==='
+                checkout scm
+            }
+        }
+
+        stage('Verify Source') {
+            steps {
+                echo '=== VERIFY SOURCE ==='
+
+                sh '''
+                    test -f index.html
+                    echo "index.html ditemukan"
+                '''
+            }
+        }
+
+        stage('Deploy Staging') {
+            steps {
+                echo '=== DEPLOY STAGING ==='
+
+                sh '''
+                    rsync -av --delete \
+                    --exclude='.git/' \
+                    --exclude='Jenkinsfile' \
+                    ./ /var/www/sekolah-staging/
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                echo '=== HEALTH CHECK ==='
+
+                sh '''
+                    curl -fsS \
+                    -H "Host: staging.sekolah.local" \
+                    http://127.0.0.1/ > /dev/null
+
+                    echo "Website staging UP"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '================================'
+            echo 'STAGING DEPLOYMENT SUCCESS'
+            echo '================================'
+        }
+
+        failure {
+            echo '================================'
+            echo 'STAGING DEPLOYMENT FAILED'
+            echo '================================'
+        }
+    }
+}
