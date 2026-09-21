@@ -19,7 +19,7 @@ pipeline {
                 echo '=== VERIFY SOURCE ==='
 
                 sh '''
-                    test -f index.html
+                    test -f school-website/index.html
                     echo "index.html ditemukan"
                 '''
             }
@@ -31,9 +31,9 @@ pipeline {
 
                 sh '''
                     rsync -av --delete \
-                    --exclude='.git/' \
                     --exclude='Jenkinsfile' \
-                    ./ /var/www/sekolah-staging/
+                    school-website/ \
+                    /var/www/sekolah-staging/
                 '''
             }
         }
