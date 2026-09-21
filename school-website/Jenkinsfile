@@ -7,13 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                echo '=== CHECKOUT SOURCE ==='
-                checkout scm
-            }
-        }
-
         stage('Verify Source') {
             steps {
                 echo '=== VERIFY SOURCE ==='
@@ -26,17 +19,21 @@ pipeline {
         }
 
         stage('Deploy Staging') {
-    steps {
-        echo '=== DEPLOY STAGING ==='
+            steps {
+                echo '=== DEPLOY STAGING ==='
 
-        sh '''
-            rsync -rtv --delete \
-            --exclude='Jenkinsfile' \
-            school-website/ \
-            /var/www/sekolah-staging/
-        '''
-    }
-}
+                sh '''
+                    rsync -rv --delete \
+                        --no-perms \
+                        --no-owner \
+                        --no-group \
+                        --omit-dir-times \
+                        --exclude='Jenkinsfile' \
+                        school-website/ \
+                        /var/www/sekolah-staging/
+                '''
+            }
+        }
 
         stage('Health Check') {
             steps {
@@ -44,8 +41,8 @@ pipeline {
 
                 sh '''
                     curl -fsS \
-                    -H "Host: staging.sekolah.local" \
-                    http://127.0.0.1/ > /dev/null
+                        -H "Host: staging.sekolah.local" \
+                        http://127.0.0.1/ > /dev/null
 
                     echo "Website staging UP"
                 '''
